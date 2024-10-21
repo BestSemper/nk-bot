@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+langchain
+langchain-community
+langchain-ollama
+transformers
+torch
+sentence_transformers
