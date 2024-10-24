@@ -61,7 +61,7 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
-    setMessages([{ sender: 'bot', text: '무엇을 도와드릴까요?' }]);
+    setMessages([{ sender: 'bot', text: '🐶 주인님, 만나서 반가워요!' }]);
   }, []);
 
   const startRecognition = () => {
@@ -73,8 +73,11 @@ export default function Chat() {
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
+      console.log('Enter key pressed');
       event.preventDefault();
       handleSend();
+    } else {
+      console.log(event.key);
     }
   };
 
@@ -106,7 +109,7 @@ export default function Chat() {
           </Button>
         </div>
       </div> */}
-
+      {/* 
       <div className="w-full max-w-md bg-transparent rounded-lg p-6">
         <p className="text-black mb-4">
           🐶 주인님, 만나서 반가워요!
@@ -115,32 +118,30 @@ export default function Chat() {
         <div className="text-right mt-8">
           <span className="bg-orange-100 text-black font-bold text-sm px-4 py-4 rounded-lg">조명 설정시 hue 뜻</span>
         </div>
-      </div>
+      </div> */}
 
       {/* Chat Section */}
-      {/* <div className="flex-1 flex flex-col items-center justify-start bg-[#FFFBF6] px-5 overflow-y-auto">
-        <div
-          className="flex-1 w-full max-w-3xl overflow-y-auto p-5 border border-gray-300 rounded-lg bg-white mt-5 mb-5"
-          ref={chatContainerRef}
-          style={{ minHeight: "400px" }} // Ensures consistent size
-        >
-          {messages.map((message, index) => (
+      <div className="w-full max-w-md bg-transparent rounded-lg p-6"
+        ref={chatContainerRef}
+        style={{ minHeight: "400px" }} // Ensures consistent size
+      >
+        {messages.map((message, index) => (
+          <div
+            key={index}
+            className={`flex items-center mb-3 ${message.sender === "user" ? "justify-end" : "justify-start"
+              }`}
+          >
             <div
-              key={index}
-              className={`flex items-center mb-3 ${message.sender === "user" ? "justify-end" : "justify-start"
+              className={`max-w-[70%] p-4 rounded-lg ${message.sender === "user"
+                ? "bg-orange-100"
+                : "bg-transparent"
                 }`}
             >
-              <div
-                className={`max-w-[70%] p-4 rounded-lg ${message.sender === "user"
-                  ? "bg-green-100"
-                  : "bg-red-100"
-                  }`}
-              >
-                <p>{message.text}</p>
-              </div>
+              <p className="text-black">{message.text}</p>
             </div>
-          ))}
-        </div> */}
+          </div>
+        ))}
+      </div>
 
       <div className="absolute bottom-6 w-full text-center mx-16">
         <div className="flex justify-center">
