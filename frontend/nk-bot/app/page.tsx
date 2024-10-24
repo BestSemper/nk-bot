@@ -1,4 +1,5 @@
 "use client";
+import Image from 'next/image'
 
 import React, { useState, useRef, useEffect } from 'react';
 import Button from './components/Button'; // Import the custom button
@@ -79,35 +80,45 @@ export default function Chat() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-pink-50 flex items-center justify-center">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6">
-        <h1 className="text-2xl font-bold">주인님, 만나서 반가워요!</h1>
-        <p>오늘은 어떤 이야기를 나눌까 기대돼요!</p>
+      <div className="absolute inset-0 flex items-end justify-end pr-10 pb-16">
+        <Image
+          className='rounded-lg'
+          src="/pup_front.png"
+          width={200}
+          height={200}
+          style={{ objectFit: "contain", opacity: 0.3 }}
+          alt="background" />
       </div>
 
-      {/* Main Content - Grid layout for sections */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 flex-1">
-        {/* Card 1 */}
+      {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 flex-1">
         <div className="bg-white shadow-md rounded-lg p-6 text-center">
           <h2 className="text-lg font-semibold mb-4">연설문 작성에 도움 얻기</h2>
           <p>효과적인 연설문을 작성하는 데 필요한 자료를 제공합니다.</p>
         </div>
-        {/* Card 2 */}
         <div className="bg-white shadow-md rounded-lg p-6 text-center">
           <h2 className="text-lg font-semibold mb-4">Copilot에 메시지 보내기</h2>
           <p>Copilot과 소통하여 아이디어를 발전시켜보세요.</p>
         </div>
-        {/* Card 3 */}
         <div className="bg-white shadow-md rounded-lg p-6 text-center">
           <h2 className="text-lg font-semibold mb-4">음성 인식으로 입력하기</h2>
           <Button onClick={startRecognition}>
             {isListening ? "Listening..." : "Start Voice Recognition"}
           </Button>
         </div>
+      </div> */}
+
+      <div className="w-full max-w-md bg-transparent rounded-lg p-6">
+        <p className="text-black mb-4">
+          🐶 주인님, 만나서 반가워요!
+        </p>
+        <p className="text-black">오늘은 어떤 이야기를 나눌까 기대돼요! </p>
+        <div className="text-right mt-8">
+          <span className="bg-orange-100 text-black font-bold text-sm px-4 py-4 rounded-lg">조명 설정시 hue 뜻</span>
+        </div>
       </div>
 
       {/* Chat Section */}
-      <div className="flex-1 flex flex-col items-center justify-start bg-[#FFFBF6] px-5 overflow-y-auto">
+      {/* <div className="flex-1 flex flex-col items-center justify-start bg-[#FFFBF6] px-5 overflow-y-auto">
         <div
           className="flex-1 w-full max-w-3xl overflow-y-auto p-5 border border-gray-300 rounded-lg bg-white mt-5 mb-5"
           ref={chatContainerRef}
@@ -129,24 +140,39 @@ export default function Chat() {
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
 
-        {/* Chat Input - Always visible */}
-        <div className="flex w-full max-w-3xl mb-5 fixed bottom-0 left-1/2 transform -translate-x-1/2 p-5 bg-[#FFFBF6]">
-          <input
-            className="flex-1 p-4 border border-gray-300 rounded-l-lg"
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="메시지를 입력하세요..."
-          />
-          <Button
-            className="p-4 bg-blue-500 text-white rounded-r-lg"
-            onClick={handleSend}
-          >
-            전송
-          </Button>
+      <div className="absolute bottom-6 w-full text-center mx-16">
+        <div className="flex justify-center">
+          <div className="bg-orange-50 bg-opacity-50 rounded-2xl shadow-lg p-2 flex items-center space-x-2 w-full max-w-md">
+            {/* 입력 텍스트 박스 - 배경은 흰색 */}
+            <input
+              type="text"
+              placeholder="복슬이한테 말하기"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="flex-grow bg-white text-gray-700 outline-none px-4 py-2 rounded-full"
+            />
+            {/* 마이크 버튼 - 오렌지 계열 투명 색상 */}
+            <button className="text-black rounded-full p-2"
+              onClick={startRecognition}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 14v7m0 0h-3m3 0h3m-6-7a3 3 0 106 0V7a3 3 0 10-6 0v7z"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
