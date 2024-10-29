@@ -9,6 +9,7 @@ from agent import ChatAgent
 app = FastAPI()
 chat_agent = ChatAgent()
 origins = ["*"]
+# origins = ["http://localhost:3000", "http://23.21.39.159"],  # 프론트엔드 주소
 
 app.add_middleware(
     CORSMiddleware,

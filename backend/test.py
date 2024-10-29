@@ -1,32 +1,73 @@
 from langchain_ollama import ChatOllama
-import asyncio
 
-async def get_ai_response(question):
-    # chat_model = ChatOllama(model="llama3.1", temperature=0.5)
-    chat_model = ChatOllama(
-        model = "llama3",
-        temperature = 0.8,
-        num_predict = 256,
-        # other params ...
-    )
-    
-    messages = [
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": question}
+chat = ChatOllama(
+    model = "benedict/linkbricks-llama3.1-korean:8b",
+    temperature = 0.1,
+)
+
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+SYSTEM_TEMPLATE = """
+Answer the user's questions based on the below context. 
+If the context doesn't contain any relevant information to the question, don't make something up and just say "I don't know":
+
+<context>
+{context}
+</context>
+"""
+
+from langchain_community.document_loaders import WebBaseLoader
+
+loader = WebBaseLoader("https://docs.smith.langchain.com/overview")
+data = loader.load()
+
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
+all_splits = text_splitter.split_documents(data)
+
+from langchain_chroma import Chroma
+from langchain_openai import OpenAIEmbeddings
+
+vectorstore = Chroma.from_documents(documents=all_splits, embedding=OpenAIEmbeddings())
+
+# k is the number of chunks to retrieve
+retriever = vectorstore.as_retriever(k=4)
+
+docs = retriever.invoke("Can LangSmith help test my LLM applications?")
+
+question_answering_prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            SYSTEM_TEMPLATE,
+        ),
+        MessagesPlaceholder(variable_name="messages"),
     ]
-    
-    try:
-        response = await chat_model.ainvoke(messages)
-        return response.content
-    except Exception as e:
-        print(f"Error occurred: {e}")
-        return "죄송합니다. 응답을 생성하는 중 오류가 발생했습니다."
+)
 
-async def main():
-    question = "한국의 수도는 어디인가요?"
-    answer = await get_ai_response(question)
-    print(f"질문: {question}")
-    print(f"AI 응답: {answer}")
+document_chain = create_stuff_documents_chain(chat, question_answering_prompt)
 
-if __name__ == "__main__":
-    asyncio.run(main())
+from typing import Dict
+
+from langchain_core.runnables import RunnablePassthrough
+
+
+def parse_retriever_input(params: Dict):
+    return params["messages"][-1].content
+
+
+retrieval_chain = RunnablePassthrough.assign(
+    context=parse_retriever_input | retriever,
+).assign(
+    answer=document_chain,
+)
+
+retrieval_chain.invoke(
+    {
+        "messages": [
+            HumanMessage(content="Can LangSmith help test my LLM applications?")
+        ],
+    }
+)
