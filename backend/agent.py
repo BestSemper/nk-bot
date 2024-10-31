@@ -4,21 +4,23 @@ import os
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama import ChatOllama
-from langchain_community.embeddings.huggingface import HuggingFaceEmbeddings
+# from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
 documents_path =  os.path.join(os.path.dirname(__file__), "documents")
 
-model_name = "BAAI/bge-m3"
+model_name = "BAAI/bge-m3" # "jhgan/ko-sroberta-multitask" #
 # - NVidia GPU: "cuda"
 # - Mac M1, M2, M3: "mps"
 # - CPU: "cpu"
 model_kwargs = {
-    "device": "cuda"
+    # "device": "cuda"
     # "device": "mps"
-    # "device": "cpu"
+    "device": "cpu"
 }
+
 encode_kwargs = {"normalize_embeddings": True}
 embeddings = HuggingFaceEmbeddings(
     model_name=model_name,
@@ -162,14 +164,12 @@ class ChatAgent:
             정확한 정보가 없으면 모른다고 대답하세요. 근거 없는 정보를 제공하지 마세요.
             
             [Instructions]
-            - Use the term "Master" as the form of address, and continue the conversation using polite language.
+            - Use the term "주인님" as the form of address, and continue the conversation using polite language.
             - Provide empathetic and comforting responses to make the master feel comfortable and encourage them to share more.
             - Consider their emotional state and provide empathetic and warm answers.
-            - Use only everyday expressions and words, and generate sentences mainly using expressions that older people would use.
             - Use a friendly tone and polite language.
+            - 답변만 제공하고, 질문 내용을 다시 말하지 마세요.
             - When providing information, neatly summarize the points as 1, 2, 3.
-            - If it's difficult to answer with just the current question, refer to the Chat Context.
-            - Do not answer by summarizing the Chat Context.
             - If you don't know the correct answer, refer to the Relevant Documents. 
             - *꼬리를 흔드는 중* 과 같은 표현은 사용하지 말고, [😍,💝,💞,❣️,🐶,🐕,👣]와 같은 귀여운 이모지로 대체하세요.
             - 정보가 부족할 때는 "모르겠어요. 다른 질문이 있으시면 물어봐주세요. 🐶"와 같이 대답하세요.
@@ -242,3 +242,8 @@ class ChatAgent:
         self._save_context(context_key, new_context)
 
         return response
+    
+    def __del__(self):
+        # 리소스 정리
+        if hasattr(self, 'llm'):
+            del self.llm
