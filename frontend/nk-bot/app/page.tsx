@@ -14,17 +14,19 @@ export default function Chat() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+  const [memberId, setMemberId] = useState('');
 
   const handleSend = async () => {
     if (input.trim() === '') return;
     const newMessage = { sender: 'user', text: input };
-    // setMessages([...messages, newMessage]);
+    setMessages([...messages, newMessage]);
     setPrevMessages([...prevMessages, newMessage]);
-    setMessages((prevMessages) => [newMessage]);
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = 0;
-      chatContainerRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    // setMessages((prevMessages) => [newMessage]);
+    // if (chatContainerRef.current) {
+    //   chatContainerRef.current.scrollTop = 0;
+    //   chatContainerRef.current.scrollIntoView({ behavior: 'smooth' });
+    // }
     setInput('');
     setLoading(true);
 
@@ -33,7 +35,7 @@ export default function Chat() {
       const response = await fetch(target_api_url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ member_id: 2, question: input }),
+        body: JSON.stringify({ member_id: memberId, question: input }),
       });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -44,16 +46,31 @@ export default function Chat() {
       // setMessages((prevMessages) => [...prevMessages, botMessage]);
       setMessages((prevMessages) => [...prevMessages, botMessage]);
       setLoading(false);
-      if (chatContainerRef.current) {
-        chatContainerRef.current.scrollTop = 0;
-        chatContainerRef.current.scrollIntoView({ behavior: 'smooth' });
-      }
+      // if (chatContainerRef.current) {
+      //   chatContainerRef.current.scrollTop = 0;
+      //   chatContainerRef.current.scrollIntoView({ behavior: 'smooth' });
+      // }
     } catch (error) {
       console.error('Error sending message:', error);
       setLoading(false);
     }
   };
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  useEffect(() => {
+    // 페이지 진입 시 한 번 랜덤 member_id 생성
+    const now = new Date();
+    const randomNum = Math.floor(Math.random() * 100);
+    const newMemberId = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}_${randomNum.toString().padStart(2, '0')}`;
+    setMemberId(newMemberId);
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
   // useEffect(() => {
   //   if (chatContainerRef.current) {
   //     chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -148,6 +165,7 @@ export default function Chat() {
             </div>
           )}
         </div>
+        <div ref={messagesEndRef} />
       </div>
       <div className="fixed flex bottom-8 mx-0">
         <div className="flex-1 bg-orange-50 bg-opacity-50 rounded-2xl shadow-lg p-2 flex items-center space-x-2 w-full">
